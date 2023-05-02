@@ -2,7 +2,9 @@
 
 > 🤖 Smart contracts are kind of like "always on" _vending machines_ that **anyone** can access. Let's make a decentralized, digital currency. Then, let's build an unstoppable vending machine that will buy and sell the currency. We'll learn about the "approve" pattern for ERC20s and how contract to contract interactions work.
 
-> 🏵 Create `YourToken.sol` smart contract that inherits the **ERC20** token standard from OpenZeppelin. Set your token to `_mint()` **1000** (\* 10 \*\* 18) tokens to the `msg.sender`. Then create a `Vendor.sol` contract that sells your token using a payable `buyTokens()` function.
+> 🏵 Create `YourToken.sol` smart contract that inherits the **ERC20** token standard from OpenZeppelin. Set your token to `_mint()` **1000** (\* 10 \*\* 18) tokens to the `msg.sender`.
+
+> Then create a `Vendor.sol` contract that sells your token using a payable `buyTokens()` function.
 
 > 🎛 Edit the frontend that invites the user to `<input\>` an amount of tokens they want to buy. We'll display a preview of the amount of ETH (or USD) it will cost with a confirm button.
 
@@ -16,6 +18,7 @@ Before you begin, you need to install the following tools:
 
 - [Node (v18 LTS)](https://nodejs.org/en/download/)
 - [Yarn](https://yarnpkg.com/getting-started/install)
+  - `yarn` is an **alternative** to `npm`, please do not use any `npm` commands for this assignment!
 
 ---
 
@@ -33,15 +36,15 @@ You'll have three terminals up for:
 
 ```
 yarn chain   (local hardhat network)
-yarn start   (react app frontend)
-yarn deploy  (to compile, deploy, and publish your contracts to the frontend)
+yarn start   (nextjs frontend)
+yarn deploy  (to compile, deploy, and publish your contracts to the hardhat network, which will reflect on your frontend)
 ```
 
 > 👀 Visit your frontend at http://localhost:3000
 
-> 👩‍💻 Rerun `yarn deploy --reset` whenever you want to deploy new contracts to the frontend.
+> 👩‍💻 Rerun `yarn deploy --reset` whenever you want to redeploy your contracts
 
-> ignore any warnings, we'll get to that...
+> Ignore any warnings, we'll get to that...
 
 ---
 
@@ -53,7 +56,7 @@ yarn deploy  (to compile, deploy, and publish your contracts to the frontend)
 
 (Your frontend address is the address in the top right of http://localhost:3000)
 
-> You can `yarn deploy --reset` to deploy your contract until you get it right.
+> Remember, you can `yarn deploy --reset` to deploy your contract until you get it right.
 
 #### 🥅 Goals
 
@@ -76,7 +79,7 @@ uint256 public constant tokensPerEth = 100;
 
 > 📝 The `buyTokens()` function in `Vendor.sol` should use `msg.value` and `tokensPerEth` to calculate an amount of tokens to `yourToken.transfer()` to `msg.sender`.
 
-> 📟 Emit **event** `BuyTokens(address buyer, uint256 amountOfETH, uint256 amountOfTokens)` when tokens are purchased.
+> 📟 Emit an **event** `BuyTokens(address buyer, uint256 amountOfETH, uint256 amountOfTokens)` when tokens are purchased.
 
 Edit `deploy/01_deploy_vendor.js` to deploy the `Vendor` (uncomment Vendor deploy lines).
 
@@ -84,7 +87,7 @@ Edit `deploy/01_deploy_vendor.js` to deploy the `Vendor` (uncomment Vendor deplo
 
 - [ ] When you try to buy tokens from the vendor, you should get an error: **'ERC20: transfer amount exceeds balance'**
 
-⚠️ this is because the Vendor contract doesn't have any YourTokens yet!
+⚠️ This is because the Vendor contract doesn't have any YourTokens yet!
 
 ⚔️ Side Quest: send tokens from your frontend address to the Vendor contract address and _then_ try to buy them.
 
@@ -100,7 +103,7 @@ await yourToken.transfer(vendor.address, ethers.utils.parseEther("1000"));
 
 > You can `yarn deploy --reset` to deploy your contract until you get it right.
 
-(You will use the `YourToken` UI tab and the frontend for most of your testing. Most of the UI is already built for you for this challenge.)
+(You will use the `YourToken` UI tab and the frontend for most of your testing. Most of the UI is already built for you for this assignment.)
 
 #### 🥅 Goals
 
@@ -135,7 +138,7 @@ await vendor.transferOwnership("**YOUR FRONTEND ADDRESS**");
 
 ### Checkpoint 4: 🤔 Vendor Buyback 🤯
 
-👩‍🏫 The hardest part of this challenge is to build your `Vendor` to buy the tokens back.
+👩‍🏫 The hardest part of this assignment is to build your `Vendor` to buy the tokens back.
 
 🧐 The reason why this is hard is the `approve()` pattern in ERC20s.
 
