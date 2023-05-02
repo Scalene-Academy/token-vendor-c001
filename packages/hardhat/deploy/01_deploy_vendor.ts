@@ -21,10 +21,12 @@ const deployVendor: DeployFunction = async function (hre: HardhatRuntimeEnvironm
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
+  const yourToken = await hre.ethers.getContract("YourToken", deployer);
+
   await deploy("Vendor", {
     from: deployer,
     // Contract constructor arguments
-    args: [deployer],
+    args: [yourToken.address],
     log: true,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.
@@ -32,7 +34,23 @@ const deployVendor: DeployFunction = async function (hre: HardhatRuntimeEnvironm
   });
 
   // Get the deployed contract
-  // const vendor = await hre.ethers.getContract("Vendor", deployer);
+  const vendor = await hre.ethers.getContract("Vendor", deployer);
+
+  // Todo: transfer the tokens to the vendor
+  console.log("\n 🏵  Sending all 1000 tokens to the vendor...\n");
+
+  const transferTransaction = await yourToken.transfer(vendor.address, hre.ethers.utils.parseEther("1000"));
+
+  console.log("\n    confirming...\n");
+  await transferTransaction.wait();
+  console.log("\n   ✅ confirmed!\n");
+
+  // ToDo: change address to your frontend address vvvv
+  console.log("\n 🤹  Sending ownership to frontend address...\n");
+  const ownershipTransaction = await vendor.transferOwnership("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+  console.log("\n    confirming...\n");
+  await ownershipTransaction.wait();
+  console.log("\n   ✅ confirmed!\n");
 };
 
 export default deployVendor;
