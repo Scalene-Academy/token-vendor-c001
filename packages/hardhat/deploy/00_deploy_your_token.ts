@@ -38,5 +38,5 @@ const deployYourToken: DeployFunction = async function (hre: HardhatRuntimeEnvir
 export default deployYourToken;
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
-// e.g. yarn deploy --tags YourContract
+// e.g. yarn deploy --tags YourToken
 deployYourToken.tags = ["YourToken"];
