@@ -1,14 +1,23 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { YourToken, Vendor } from "../typechain-types";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 describe("Token Vendor", function () {
+  let owner: SignerWithAddress;
+  let nonOwner: SignerWithAddress;
+
   let yourToken: YourToken;
   let vendor: Vendor;
 
   before(async () => {
+    const signers = await ethers.getSigners();
+    // use Hardhat Account #0 as the owner of the Vendor
+    owner = signers[0];
+    // use Hardhat Account #1 as a "non-owner"
+    nonOwner = signers[1];
+
     // deploy the contracts
-    const [owner] = await ethers.getSigners();
     const yourTokenFactory = await ethers.getContractFactory("YourToken");
     yourToken = (await yourTokenFactory.deploy(owner.address)) as YourToken;
     await yourToken.deployed();
@@ -34,8 +43,6 @@ describe("Token Vendor", function () {
   describe("Vendor", function () {
     describe("buyTokens", function () {
       it("Should let us buy tokens and our balance should go up...", async function () {
-        const [owner] = await ethers.getSigners();
-
         const startingBalance = await yourToken.balanceOf(owner.address);
 
         const buyTokensResult = await vendor.buyTokens({ value: ethers.utils.parseEther("0.001") });
@@ -50,8 +57,6 @@ describe("Token Vendor", function () {
 
     describe("sellTokens", function () {
       it("Should let us sell tokens and we should get the appropriate amount eth back...", async function () {
-        const [owner] = await ethers.getSigners();
-
         const startingETHBalance = await ethers.provider.getBalance(owner.address);
 
         const startingBalance = await yourToken.balanceOf(owner.address);
@@ -83,8 +88,6 @@ describe("Token Vendor", function () {
 
     describe(" 💵 withdraw()", function () {
       it("Should let the owner (and nobody else) withdraw the eth from the contract...", async function () {
-        const [owner, nonOwner] = await ethers.getSigners();
-
         const buyTokensResult = await vendor.connect(nonOwner).buyTokens({ value: ethers.utils.parseEther("0.1") });
 
         const buyTxResult = await buyTokensResult.wait();
