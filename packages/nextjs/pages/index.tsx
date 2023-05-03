@@ -21,7 +21,7 @@ const Home: NextPage = () => {
             Edit your frontend in <code className="italic bg-base-300 text-base font-bold">packages/nextjs/pages</code>
           </p>
           <p className="text-center text-lg">
-            Edit your smart contract <code className="italic bg-base-300 text-base font-bold">YourToken.sol</code> in{" "}
+            Edit your smart contracts in{" "}
             <code className="italic bg-base-300 text-base font-bold">packages/hardhat/contracts</code>
           </p>
         </div>
