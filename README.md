@@ -1,287 +1,186 @@
-# 🏗 Scaffold-ETH 2
+## 🏵 Token Vendor 🤖
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+🤖 Smart contracts are kind of like "always on" _vending machines_ that **anyone** can access. Let's make a decentralized, digital currency. Then, let's build an unstoppable vending machine that will buy and sell the currency. We'll learn about the `approve` pattern for ERC20s and how contract to contract interactions work.
 
-⚙️ Built using NextJS, RainbowKit, Hardhat, Wagmi, and Typescript.
+### You will
 
-- ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
-- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
+- 🏵 Create a `YourToken.sol` token contract that inherits the **ERC20** token standard from OpenZeppelin
 
-## Contents
+- 🤖 Create a `Vendor.sol` contract that sells and buys your tokens
 
-- [Requirements](#requirements)
-- [Quickstart](#quickstart)
-- [Deploying your Smart Contracts to a Live Network](#deploying-your-smart-contracts-to-a-live-network)
-- [Deploying your NextJS App](#deploying-your-nextjs-app)
-- [Interacting with your Smart Contracts: SE-2 Custom Hooks](#interacting-with-your-smart-contracts-se-2-custom-hooks)
-- [Disabling Type & Linting Error Checks](#disabling-type-and-linting-error-checks)
-  - [Disabling commit checks](#disabling-commit-checks)
-  - [Deploying to Vercel without any checks](#deploying-to-vercel-without-any-checks)
-  - [Disabling Github Workflow](#disabling-github-workflow)
-- [Contributing to Scaffold-ETH 2](#contributing-to-scaffold-eth-2)
+- 🌈 Extension: Edit the frontend that invites the user to `<input\>` an amount of tokens they want to buy or sell. We'll display a preview of the amount of ETH they will spend or receive, as well as a history of usages (`Event`s) of the vendor.
 
-## Requirements
+🧫 Everything starts by ✏ editing `YourToken.sol` in `packages/hardhat/contracts`
+
+---
+
+### Requirements
 
 Before you begin, you need to install the following tools:
 
 - [Node (v18 LTS)](https://nodejs.org/en/download/)
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
-- [Git](https://git-scm.com/downloads)
+- [Yarn](https://yarnpkg.com/getting-started/install)
+  - `yarn` is an **alternative** to `npm`, please do not use any `npm` commands for this assignment!
 
-## Quickstart
+---
 
-To get started with Scaffold-ETH 2, follow the steps below:
-
-1. Clone this repo & install dependencies
+### Checkpoint 0: Clone and Install
 
 ```
-git clone https://github.com/scaffold-eth/scaffold-eth-2.git
-cd scaffold-eth-2
+git clone git@github.com:Scalene-Academy/token-vendor-c1.git
+cd token-vendor-c1
 yarn install
 ```
 
-2. Run a local network in the first terminal:
+### Checkpoint 1: 🔭 Environment 📺
+
+You'll have three terminals up for:
 
 ```
-yarn chain
+yarn chain   (local hardhat network)
+yarn start   (nextjs frontend)
+yarn deploy  (to compile, deploy, and publish your contracts to the hardhat network)
 ```
 
-This command starts a local Ethereum network using Hardhat. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `hardhat.config.ts`.
+> 👀 Visit your frontend at http://localhost:3000.
+>
+> 💻 During development, we'll be using the `Debug Contracts` tab
 
-3. On a second terminal, deploy the test contract:
+> 👩‍💻 Rerun `yarn deploy --reset` whenever you want to redeploy your contracts
 
-```
-yarn deploy
-```
+> 😌 Ignore any errors or warnings for now, we'll get to that...
 
-This command deploys a test smart contract to the local network. The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
+---
 
-4. On a third terminal, start your NextJS app:
+### Checkpoint 2: 🏵Your Token 💵
 
-```
-yarn start
-```
+- 👩‍💻 Edit `YourToken.sol` to inherit the **ERC20** token standard from OpenZeppelin
 
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the contract component or the example ui in the frontend. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
+- Mint **1000** (\* 10 \*\* 18) to your frontend address in the `constructor()`.
 
-Run smart contract test with `yarn hardhat:test`
+  - (Your frontend address is the address in the top right of http://localhost:3000)
 
-- Edit your smart contract `YourContract.sol` in `packages/hardhat/contracts`
-- Edit your frontend in `packages/nextjs/pages`
-- Edit your deployment scripts in `packages/hardhat/deploy`
+> Remember, you can always `yarn deploy --reset` to redeploy your contracts until you get it right.
 
-## Deploying your Smart Contracts to a Live Network
+#### 🥅 Goals
 
-Once you are ready to deploy your smart contracts, there are a few things you need to adjust.
+- [ ] Can you check the `balanceOf()` your frontend address?
+- [ ] Can you `transfer()` your token to another account and check _that_ account's `balanceOf`?
 
-1. Select the network
+---
 
-By default, `yarn deploy` will deploy the contract to the local network. You can change the defaultNetwork in `packages/hardhat/hardhat.config.ts.` You could also simply run `yarn deploy --network target_network` to deploy to another network.
+### Checkpoint 3: ⚖️ Vendor 🤖
 
-Check the `hardhat.config.ts` for the networks that are pre-configured. You can also add other network settings to the `hardhat.config.ts file`. Here are the [Alchemy docs](https://docs.alchemy.com/docs/how-to-add-alchemy-rpc-endpoints-to-metamask) for information on specific networks.
+- 👩‍💻 Edit the `Vendor.sol` contract with a `payable` `buyTokens()` function
 
-Example: To deploy the contract to the Sepolia network, run the command below:
+  - Use a price variable named `tokensPerEth` set to **100**:
 
-```
-yarn deploy --network sepolia
-```
+    ```solidity
+    uint256 public constant tokensPerEth = 100;
+    ```
 
-2. Generate a new account or add one to deploy the contract(s) from. Additionally you will need to add your Alchemy API key. Rename `.env.example` to `.env` and fill the required keys.
+  - 📝 The `buyTokens()` function in `Vendor.sol` should use `msg.value` and `tokensPerEth` to calculate an amount of tokens to `yourToken.transfer()` to `msg.sender`.
 
-```
-ALCHEMY_API_KEY="",
-DEPLOYER_PRIVATE_KEY=""
-```
+  - 📟 Define and `emit` an **event** `BuyTokens(address buyer, uint256 amountOfETH, uint256 amountOfTokens)` when tokens are purchased.
 
-The deployer account is the account that will deploy your contracts. Additionally, the deployer account will be used to execute any function calls that are part of your deployment script.
+- Uncomment the lines in `deploy/01_deploy_vendor.ts` to deploy the `Vendor` and redeploy your contracts
 
-You can generate a random account / private key with `yarn generate` or add the private key of your crypto wallet. `yarn generate` will create a random account and add the DEPLOYER_PRIVATE_KEY to the .env file. You can check the generated account with `yarn account`.
+- When you try to buy tokens from the vendor, you should get an error: `ERC20: transfer amount exceeds balance`
 
-3. Deploy your smart contract(s)
+  - ⚠️ This is because the Vendor contract doesn't have any `YourToken`s yet!
 
-Run the command below to deploy the smart contract to the target network. Make sure to have some funds in your deployer account to pay for the transaction.
+  - ⚔️ Side Quest: send tokens from your frontend address to the Vendor contract address and _then_ try to buy them.
 
-```
-yarn deploy --network network_name
-```
+  - ✏️ We can't hard code the vendor address in the token's constructor, because we won't know the vendor address at the time we create the token contract (because the token is deployed first!).
 
-4. Verify your smart contract
+  - ✏️ So instead, edit `YourToken.sol` to mint the tokens to the `msg.sender` (deployer) in the `constructor()`.
 
-You can verify your smart contract on Etherscan by running:
+  - ✏️ Then, edit `deploy/01_deploy_vendor.ts` to transfer 1000 tokens to `vendor.address`.
 
-```
-yarn verify --network network_name
-```
+    ```js
+    await yourToken.transfer(vendor.address, ethers.utils.parseEther("1000"));
+    ```
 
-## Deploying your NextJS App
+> Remember, you can always `yarn deploy --reset` to redeploy your contracts until you get it right.
 
-**Hint**: We recommend connecting your GitHub repo to Vercel (through the Vercel UI) so it gets automatically deployed when pushing to `main`.
+#### 🥅 Goals
 
-If you want to deploy directly from the CLI, run `yarn vercel` and follow the steps to deploy to Vercel. Once you log in (email, github, etc), the default options should work. It'll give you a public URL.
+- [ ] Does the `Vendor` address start with a `balanceOf` **1000** `YourToken`s?
+- [ ] Can you buy **10** tokens for **0.1** ETH?
+- [ ] Can you transfer tokens to a different account?
 
-If you want to redeploy to the same production URL you can run `yarn vercel --prod`. If you omit the `--prod` flag it will deploy it to a preview/test URL.
+### Checkpoint 4: 🕴 Become the Owner
 
-**Make sure your `packages/nextjs/scaffold.config.ts` file has the values you need.**
+- 📝 Edit `Vendor.sol` to inherit `Ownable`.
 
-## Interacting with your Smart Contracts: SE-2 Custom Hooks
+- In `deploy/01_deploy_vendor.ts` you will need to call `transferOwnership()` on the `Vendor` to make _your frontend address_ the `owner`:
 
-Scaffold-ETH 2 provides a collection of custom React hooks designed to simplify interactions with your deployed smart contracts. These hooks are wrappers around `wagmi`, automatically loading the necessary contract ABI and address. They offer an easy-to-use interface for reading from, writing to, and monitoring events emitted by your smart contracts.  
-If you need to interact with external contracts, you can use `wagmi` directly, or add external contract data to your `deployedContracts.ts` file.
+  ```js
+  await vendor.transferOwnership("**YOUR FRONTEND ADDRESS**");
+  ```
 
-- [useScaffoldContractRead](#usescaffoldcontractread)
-- [useScaffoldContractWrite](#usescaffoldcontractwrite)
-- [useScaffoldEventSubscriber](#usescaffoldeventsubscriber)
-- [useScaffoldEventHistory](#usescaffoldeventhistory)
-- [useDeployedContractInfo](#usedeployedcontractinfo)
-- [useScaffoldContract](#usescaffoldcontract)
+- 📝 Finally, add a `withdraw()` function in `Vendor.sol` that only allows the owner to withdraw ETH from the vendor.
 
-### useScaffoldContractRead:
+#### 🥅 Goals
 
-Read public variables and get data from read-only functions of your contract.
+- [ ] Is your frontend address the `owner` of the `Vendor`?
+- [ ] Can **only** the `owner` withdraw the ETH from the `Vendor`?
 
-```ts
-const { data: totalCounter } = useScaffoldContractRead({
-  contractName: "YourContract",
-  functionName: "getGreeting",
-  args: ["ARGUMENTS IF THE FUNCTION ACCEPTS ANY"],
-});
-```
+---
 
-### useScaffoldContractWrite:
-
-Send a transaction to your contract to write data or perform an action.
-
-```ts
-const { writeAsync, isLoading, isMining } = useScaffoldContractWrite({
-  contractName: "YourContract",
-  functionName: "setGreeting",
-  args: ["The value to set"],
-  // For payable functions, expressed in ETH
-  value: "0.01",
-});
-```
-
-To make the actual call:
-
-```ts
-<button className="btn btn-primary" onClick={writeAsync}>
-  Send TX
-</button>
-```
-
-### useScaffoldEventSubscriber:
-
-Subscribe to your contract events, receiving real-time updates when events are emitted.
-
-```ts
-useScaffoldEventSubscriber({
-  contractName: "YourContract",
-  eventName: "GreetingChange",
-  // The listener function is called whenever a GreetingChange event is emitted by the contract.
-  // It receives the parameters emitted by the event, for this example: GreetingChange(address greetingSetter, string newGreeting, bool premium, uint256 value);
-  listener: (greetingSetter, newGreeting, premium, value) => {
-    console.log(greetingSetter, newGreeting, premium, value);
-  },
-});
-```
+### Checkpoint 5: 🤔 Vendor Buyback 🤯
 
-### useScaffoldEventHistory:
+👩‍🏫 The hardest part of this assignment is to modify your `Vendor` to buy the tokens back.
 
-Retrieves historical event logs for your contract, providing past activity data.
+🧐 The reason why this is hard is the `approve()` pattern in ERC20s.
 
-```ts
-const {
-  data: events,
-  isLoading: isLoadingEvents,
-  error: errorReadingEvents,
-  } = useScaffoldEventHistory({
-  contractName: "YourContract",
-  eventName: "GreetingChange",
-  // Specify the starting block number from which to read events.
-  fromBlock: 31231,
-  blockData: true,
-  // Apply filters to the event based on parameter names and values { [parameterName]: value },
-  filters: { premium: true }
-  // If set to true it will return the transaction data for each event (default: false),
-  transactionData: true,
-  // If set to true it will return the receipt data for each event (default: false),
-  receiptData: true
-});
-```
+😕 First, the user has to call `approve()` on the `YourToken` contract, allowing the `Vendor` contract address to take some amount of tokens.
 
-### useDeployedContractInfo:
+🤨 Then, the user makes a _second transaction_ to the `Vendor` contract to `sellTokens(uint256 amount)`.
 
-Fetches details from your contract, including ABI and address.
+🤓 The `Vendor` should call `yourToken.transferFrom(msg.sender, address(this), theAmount)` and if the user has approved the `Vendor` correctly, tokens should be sent to the `Vendor`, and ETH should be sent to the user.
 
-```ts
-// ContractName: name of the deployed contract
-const { data: deployedContractData } = useDeployedContractInfo(contractName);
-```
+- 📝 Edit `Vendor.sol` and add a `sellTokens(uint256 amount)` function!
+- 🔨 Use the `Debug Contracts` tab to call `approve` and `sellTokens`
 
-### useScaffoldContract:
+#### 🥅 Goal
 
-Get your contract instance by providing the contract name. Lets you interact with your contract methods.  
-For reading data or sending transactions, it's recommended to use `useScaffoldContractRead` and `useScaffoldContractWrite`.
+- [ ] Can you sell tokens back to the vendor using the `approve` pattern?
+- [ ] Do you receive the right amount of ETH for the tokens?
 
-```ts
-const { data: yourContract } = useScaffoldContract({
-  contractName: "YourContract",
-});
-// Returns the greeting and can be called in any function, unlike useScaffoldContractRead
-await yourContract?.greeting();
+### Checkpoint 6: ⚠️ Test it!!
 
-// Used to write to a contract and can be called in any function
-import { Signer } from "ethers";
-import { useSigner } from "wagmi";
+- Now is a good time to run `yarn hardhat:test` to run the automated testing function. It will test that you hit the core checkpoints. You are looking for all green checkmarks and passing tests!
+- As always, we should aim for our tests to cover 100% of our smart contract code. Run `yarn hardhat:test:coverage` to see if this is the case!
+  - If the coverage report says the `_mint` line in `YourToken`'s `constructor` isn't covered, don't worry! We trust that OpenZeppelin's implementations work
 
-const { data: signer, isError, isLoading } = useSigner();
-const { data: yourContract } = useScaffoldContract({
-  contractName: "YourContract",
-  signerOrProvider: signer as Signer,
-});
-const setGreeting = async () => {
-  // Call the method in any function
-  await yourContract?.setGreeting("the greeting here");
-};
-```
+### Extension 1 (Optional): 🌈 The Real Frontend 🌈
 
-## Disabling type and linting error checks
+So far, we've used the `Debug Contracts` tab to interact with our contracts, but this isn't very user friendly. Check out the `Example UI` tab (file `packages/nextjs/pages/example-ui.tsx`) to see what the start of a real UI could look like!
 
-> **Hint**
-> Typescript helps you catch errors at compile time, which can save time and improve code quality, but can be challenging for those who are new to the language or who are used to the more dynamic nature of JavaScript. Below are the steps to disable type & lint check at different levels
+`scaffold-eth-2` also provides us with some handy helpers in `nextjs/hooks`
 
-### Disabling commit checks
+Note that the frontend uses [tailwindcss](https://tailwindcss.com/) for styling
 
-We run `pre-commit` [git hook](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) which lints the staged files and don't let you commit if there is an linting error.
+#### Contract Interactions (Left)
 
-To disable this, go to `.husky/pre-commit` file and comment out `yarn lint-staged --verbose`
+- Uncomment the commented out code in `ContractInteraction/index.tsx`
+- Have a play around with the contract interaction UI
 
-```diff
-- yarn lint-staged --verbose
-+ # yarn lint-staged --verbose
-```
+The UI looks pretty good, but could be better, let's finish it off!
 
-### Deploying to Vercel without any checks
+Currently when buying tokens, the user must enter the amount of ETH they are using to purchase, and they receive 100x this amount of `YourToken`s in return.
 
-By default, Vercel runs types and lint checks before building your app. The deployment will fail if there are any types or lint errors.
+- Change this so that the user enters the number of `YourToken`s they would like to buy instead
+- Update the subtitle below the input to reflect how much ETH this will cost them
+  - For example, if `100` is entered in the input then it should say `You pay: 1.0 ETH + Gas`
 
-To ignore these checks while deploying from the CLI, use:
+#### Events
 
-```shell
-yarn vercel:yolo
-```
+- It would be a good idea to display `BuyTokens` Events. Display the event history on the right side of `Example UI` (see `ContractData.tsx`). Unleash your inner designer and showcase those events in a way users would like to see!
+- Get new `BuyTokens` events to be added here in realtime as you interact with the contract
+- Now, add a `SellTokens` event to `Vendor.sol` and do the same for those events!
 
-If your repo is connected to Vercel, you can set `NEXT_PUBLIC_IGNORE_BUILD_ERROR` to `true` in a [environment variable](https://vercel.com/docs/concepts/projects/environment-variables).
+### Extension 2 (Optional): 🎂 Additional Changes 🎂
 
-### Disabling Github Workflow
-
-We have github workflow setup checkout `.github/workflows/lint.yaml` which runs types and lint error checks every time code is **pushed** to `main` branch or **pull request** is made to `main` branch
-
-To disable it, **delete `.github` directory**
-
-## Contributing to Scaffold-ETH 2
-
-We welcome contributions to Scaffold-ETH 2!
-
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
+Add any features you think would improve your Token Vendor! Just remember to ensure the core functionality stays intact and the test suite still passes!
