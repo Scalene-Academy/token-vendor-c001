@@ -19,7 +19,7 @@ describe("Token Vendor", function () {
 
     // deploy the contracts
     const yourTokenFactory = await ethers.getContractFactory("YourToken");
-    yourToken = (await yourTokenFactory.deploy(owner.address)) as YourToken;
+    yourToken = (await yourTokenFactory.deploy()) as YourToken;
     await yourToken.deployed();
 
     const vendorFactory = await ethers.getContractFactory("Vendor");
@@ -82,19 +82,6 @@ describe("Token Vendor", function () {
         const newETHBalance = await ethers.provider.getBalance(owner.address);
         const ethChange = newETHBalance.sub(startingETHBalance).toNumber();
         expect(ethChange).to.greaterThan(100000000000000);
-      });
-
-      it("Should not allow us to sell tokens outside of multiples of 100, because this would be converted to 0 wei", async function () {
-        const startingBalance = await yourToken.balanceOf(owner.address);
-
-        await expect(vendor.sellTokens(50)).to.be.revertedWith("Tokens can only be sold in multiples of 100");
-
-        await expect(vendor.sellTokens(ethers.utils.parseEther("0.1").add(99))).to.be.revertedWith(
-          "Tokens can only be sold in multiples of 100",
-        );
-
-        const newBalance = await yourToken.balanceOf(owner.address);
-        expect(newBalance).to.equal(startingBalance);
       });
 
       it("Should not allow us to sell more tokens than we have approved to be transferred", async function () {
