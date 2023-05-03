@@ -58,7 +58,7 @@ yarn deploy  (to compile, deploy, and publish your contracts to the hardhat netw
 
   - (Your frontend address is the address in the top right of http://localhost:3000)
 
-> Remember, you can `yarn deploy --reset` to deploy your contract until you get things right.
+> Remember, you can `yarn deploy --reset` to redeploy your contracts until you get it right.
 
 #### 🥅 Goals
 
@@ -95,7 +95,7 @@ yarn deploy  (to compile, deploy, and publish your contracts to the hardhat netw
   await yourToken.transfer(vendor.address, ethers.utils.parseEther("1000"));
   ```
 
-> Remember, you can `yarn deploy --reset` to deploy your contract until you get it right.
+> Remember, you can `yarn deploy --reset` to redeploy your contracts until you get it right.
 
 #### 🥅 Goals
 
