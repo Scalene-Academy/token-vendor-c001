@@ -46,10 +46,7 @@ describe("Token Vendor", function () {
         const startingBalance = await yourToken.balanceOf(owner.address);
 
         // buy 1 ETH worth of tokens (100 YourTokens)
-        const buyTokensResult = await vendor.buyTokens({ value: ethers.utils.parseEther("1") });
-
-        const txResult = await buyTokensResult.wait();
-        expect(txResult.status).to.equal(1);
+        await vendor.buyTokens({ value: ethers.utils.parseEther("1") });
 
         const newBalance = await yourToken.balanceOf(owner.address);
         expect(newBalance).to.equal(startingBalance.add(ethers.utils.parseEther("100")));
@@ -71,17 +68,12 @@ describe("Token Vendor", function () {
         const startingETHBalance = await ethers.provider.getBalance(owner.address);
         const startingBalance = await yourToken.balanceOf(owner.address);
 
-        const approveTokensResult = await yourToken.approve(vendor.address, ethers.utils.parseEther("0.1"));
+        await yourToken.approve(vendor.address, ethers.utils.parseEther("0.1"));
 
-        const atxResult = await approveTokensResult.wait();
-        expect(atxResult.status).to.equal(1, "Error when expecting the transaction result to equal 1");
-
-        const sellTokensResult = await vendor.sellTokens(ethers.utils.parseEther("0.1"));
-
-        const txResult = await sellTokensResult.wait();
-        expect(txResult.status).to.equal(1, "Error when expecting the transaction status to equal 1");
+        await vendor.sellTokens(ethers.utils.parseEther("0.1"));
 
         const newBalance = await yourToken.balanceOf(owner.address);
+
         expect(newBalance).to.equal(
           startingBalance.sub(ethers.utils.parseEther("0.1")),
           "Error when expecting the token balance to have increased by 0.1",
@@ -89,10 +81,7 @@ describe("Token Vendor", function () {
 
         const newETHBalance = await ethers.provider.getBalance(owner.address);
         const ethChange = newETHBalance.sub(startingETHBalance).toNumber();
-        expect(ethChange).to.greaterThan(
-          100000000000000,
-          "Error when expecting the ether returned to the user by the sellTokens function to be correct",
-        );
+        expect(ethChange).to.greaterThan(100000000000000);
       });
 
       it("Should not allow us to sell tokens outside of multiples of 100, because this would be converted to 0 wei", async function () {
@@ -117,50 +106,35 @@ describe("Token Vendor", function () {
           "ERC20: insufficient allowance",
         );
 
-        const approveTokensResult = await yourToken.approve(vendor.address, ethers.utils.parseEther("0.1"));
-
-        const atxResult = await approveTokensResult.wait();
-        expect(atxResult.status).to.equal(1, "Error when expecting the transaction result to equal 1");
+        await yourToken.approve(vendor.address, ethers.utils.parseEther("0.1"));
 
         await expect(vendor.sellTokens(ethers.utils.parseEther("0.1"))).not.to.be.reverted;
       });
 
       it("Should not allow us to sell tokens if the Vendor doesn't have enough ETH to pay the user", async function () {
-        // first, withdraw
-        const withdrawResult = await vendor.withdraw();
-
-        const withdrawTxResult = await withdrawResult.wait();
-        expect(withdrawTxResult.status).to.equal(1, "Error when expecting the withdraw transaction to equal 1");
+        // first, withdraw all the ETH
+        await vendor.withdraw();
 
         // now, try to sell some tokens
-        const approveTokensResult = await yourToken.approve(vendor.address, ethers.utils.parseEther("0.1"));
-
-        const atxResult = await approveTokensResult.wait();
-        expect(atxResult.status).to.equal(1, "Error when expecting the transaction result to equal 1");
-
+        await yourToken.approve(vendor.address, ethers.utils.parseEther("0.1"));
         await expect(vendor.sellTokens(ethers.utils.parseEther("0.1"))).to.be.reverted;
       });
     });
 
     describe("withdraw()", function () {
-      it("Should let the owner withdraw the ETH from the contract", async function () {
+      it("Should let the owner withdraw all the ETH from the contract", async function () {
         const vendorETHBalance = await ethers.provider.getBalance(vendor.address);
 
         const startingOwnerETHBalance = await ethers.provider.getBalance(owner.address);
         const withdrawResult = await vendor.withdraw();
 
-        const withdrawTxResult = await withdrawResult.wait();
-        expect(withdrawTxResult.status).to.equal(1, "Error when expecting the withdraw transaction to equal 1");
-
         const newOwnerETHBalance = await ethers.provider.getBalance(owner.address);
-
         const tx = await ethers.provider.getTransaction(withdrawResult.hash);
         const receipt = await ethers.provider.getTransactionReceipt(withdrawResult.hash);
         const gasCost = tx.gasPrice?.mul(receipt.gasUsed);
 
         expect(newOwnerETHBalance).to.equal(
           startingOwnerETHBalance.add(vendorETHBalance).sub(ethers.BigNumber.from(gasCost)),
-          "Error when expecting the owner's ether returned by withdraw to be sufficient",
         );
       });
 
