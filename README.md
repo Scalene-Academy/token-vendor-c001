@@ -78,7 +78,7 @@ yarn deploy  (to compile, deploy, and publish your contracts to the hardhat netw
 
 - 📝 The `buyTokens()` function in `Vendor.sol` should use `msg.value` and `tokensPerEth` to calculate an amount of tokens to `yourToken.transfer()` to `msg.sender`.
 - 📟 Define and `emit` an **event** `BuyTokens(address buyer, uint256 amountOfETH, uint256 amountOfTokens)` when tokens are purchased.
-- Edit `deploy/01_deploy_vendor.js` to deploy the `Vendor` (uncomment Vendor deploy lines).
+- Edit `deploy/01_deploy_vendor.ts` to deploy the `Vendor` (uncomment Vendor deploy lines).
 - When you try to buy tokens from the vendor, you should get an error: **'ERC20: transfer amount exceeds balance'**
 
 - ⚠️ This is because the Vendor contract doesn't have any `YourToken`s yet!
@@ -87,9 +87,9 @@ yarn deploy  (to compile, deploy, and publish your contracts to the hardhat netw
 
 - ✏️ We can't hard code the vendor address like we did above when deploying to the network because we won't know the vendor address at the time we create the token contract.
 
-- ✏️ So instead, edit `YourToken.sol` to mint the tokens to the `msg.sender` (deployer) in the `constructor(address deployer)`.
+- ✏️ So instead, edit `YourToken.sol` to mint the tokens to the `msg.sender` (deployer) in the `constructor()`.
 
-- ✏️ Then, edit `deploy/01_deploy_vendor.js` to transfer 1000 tokens to `vendor.address`.
+- ✏️ Then, edit `deploy/01_deploy_vendor.ts` to transfer 1000 tokens to `vendor.address`.
 
   ```js
   await yourToken.transfer(vendor.address, ethers.utils.parseEther("1000"));
@@ -107,7 +107,7 @@ yarn deploy  (to compile, deploy, and publish your contracts to the hardhat netw
 
 - 📝 Edit `Vendor.sol` to inherit _Ownable_.
 
-- In `deploy/01_deploy_vendor.js` you will need to call `transferOwnership()` on the `Vendor` to make _your frontend address_ the `owner`:
+- In `deploy/01_deploy_vendor.ts` you will need to call `transferOwnership()` on the `Vendor` to make _your frontend address_ the `owner`:
 
   ```js
   await vendor.transferOwnership("**YOUR FRONTEND ADDRESS**");
