@@ -152,6 +152,7 @@ yarn deploy  (to compile, deploy, and publish your contracts to the hardhat netw
 
 - Now is a good time to run `yarn hardhat:test` to run the automated testing function. It will test that you hit the core checkpoints. You are looking for all green checkmarks and passing tests!
 - As always, we should aim for our tests to cover 100% of our smart contract code. Run `yarn hardhat:test:coverage` to see if this is the case!
+  - Don't worry about the `_mint` line in `YourToken`'s `constructor`. We trust that OpenZeppelin's implementations work
 
 ### Extension 1 (Optional): 🌈 The Real Frontend 🌈
 
