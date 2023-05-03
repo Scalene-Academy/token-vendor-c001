@@ -12,7 +12,7 @@ export const ContractInteraction = () => {
   // const vendor = useDeployedContractInfo("Vendor");
 
   const [areInstructionsVisible, setAreInstructionsVisible] = useState(true);
-  // @TODO: change this to be the number of `YourToken`s, not ETH
+  // // @TODO: change this to be the number of `YourToken`s, not ETH
   // const [buyAmount, setBuyAmount] = useState("");
   // const [approveAmount, setApproveAmount] = useState("");
   // const [sellAmount, setSellAmount] = useState("");
@@ -32,7 +32,7 @@ export const ContractInteraction = () => {
   // const { writeAsync: sellTokensAsync, isLoading: sellIsLoading } = useScaffoldContractWrite({
   //   contractName: "Vendor",
   //   functionName: "sellTokens",
-  //   args: [ethers.utils.parseEther(sellAmount || "1")],
+  //   args: [ethers.utils.parseEther(sellAmount || "0")],
   // });
 
   return (

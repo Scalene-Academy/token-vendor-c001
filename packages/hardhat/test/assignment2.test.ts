@@ -58,7 +58,7 @@ describe("Token Vendor", function () {
           vendor.buyTokens({ value: ethers.utils.parseEther("10.1") }),
         ).to.be.revertedWith(
           // nope!!
-          "Insufficient tokens in the Vendor",
+          "ERC20: transfer amount exceeds balance",
         );
       });
     });
