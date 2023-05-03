@@ -9,14 +9,13 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useDeployedContractInfo, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 
 export const ContractInteraction = () => {
+  const vendor = useDeployedContractInfo("Vendor");
+
   const [visible, setVisible] = useState(true);
+  // @TODO: change this to be the number of `YourToken`s, not ETH
   const [buyAmount, setBuyAmount] = useState("");
   const [approveAmount, setApproveAmount] = useState("");
   const [sellAmount, setSellAmount] = useState("");
-
-  const vendor = useDeployedContractInfo("Vendor");
-
-  // approve, sell, buy
 
   const { writeAsync: buyTokensAsync, isLoading: buyTokensIsLoading } = useScaffoldContractWrite({
     contractName: "Vendor",
@@ -27,7 +26,7 @@ export const ContractInteraction = () => {
   const { writeAsync: approveAsync, isLoading: approveIsLoading } = useScaffoldContractWrite({
     contractName: "YourToken",
     functionName: "approve",
-    args: [vendor.data?.address, ethers.utils.parseEther(approveAmount || "1")],
+    args: [vendor.data?.address, ethers.utils.parseEther(approveAmount || "0")],
   });
 
   const { writeAsync: sellTokensAsync, isLoading: sellIsLoading } = useScaffoldContractWrite({
@@ -73,6 +72,9 @@ export const ContractInteraction = () => {
           setValue={setBuyAmount}
           onClick={buyTokensAsync}
           buttonIsLoading={buyTokensIsLoading}
+          subtitleLabel="You pay"
+          // @TODO: make sure to update this too!
+          subtitleValue={`${buyAmount} ETH + Gas`}
         />
 
         <ContractInteractionCard
@@ -80,6 +82,8 @@ export const ContractInteraction = () => {
           setValue={setApproveAmount}
           onClick={approveAsync}
           buttonIsLoading={approveIsLoading}
+          subtitleLabel="You pay"
+          subtitleValue="Gas"
         />
 
         <ContractInteractionCard
@@ -87,6 +91,8 @@ export const ContractInteraction = () => {
           setValue={setSellAmount}
           onClick={sellTokensAsync}
           buttonIsLoading={sellIsLoading}
+          subtitleLabel="You receive"
+          subtitleValue={`${ethers.utils.formatEther(ethers.utils.parseEther(sellAmount || "0").div(100))} ETH - Gas`}
         />
       </div>
     </div>

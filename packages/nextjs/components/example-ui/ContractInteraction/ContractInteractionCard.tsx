@@ -5,6 +5,8 @@ type ContractInteractionCardProps = {
   setValue: React.Dispatch<React.SetStateAction<string>>;
   onClick: () => Promise<void>;
   buttonIsLoading: boolean;
+  subtitleLabel: string;
+  subtitleValue: string;
 };
 
 export const ContractInteractionCard: React.FC<ContractInteractionCardProps> = ({
@@ -12,6 +14,8 @@ export const ContractInteractionCard: React.FC<ContractInteractionCardProps> = (
   setValue,
   onClick,
   buttonIsLoading,
+  subtitleLabel,
+  subtitleValue,
 }) => {
   return (
     <div className="flex flex-col mt-6 px-7 py-8 bg-base-200 opacity-80 rounded-2xl shadow-lg border-2 border-primary">
@@ -42,9 +46,8 @@ export const ContractInteractionCard: React.FC<ContractInteractionCardProps> = (
       </div>
 
       <div className="mt-4 flex gap-2 items-start">
-        <span className="text-sm leading-tight">You pay:</span>
-        {/* @TODO: calculate how much ETH */}
-        <div className="badge badge-warning">TODO! ETH + Gas</div>
+        <span className="text-sm leading-tight">{subtitleLabel}:</span>
+        <div className="badge badge-warning">{subtitleValue}</div>
       </div>
     </div>
   );

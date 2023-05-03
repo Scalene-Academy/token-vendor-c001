@@ -2,11 +2,13 @@
 
 > 🤖 Smart contracts are kind of like "always on" _vending machines_ that **anyone** can access. Let's make a decentralized, digital currency. Then, let's build an unstoppable vending machine that will buy and sell the currency. We'll learn about the "approve" pattern for ERC20s and how contract to contract interactions work.
 
-> 🏵 Create `YourToken.sol` smart contract that inherits the **ERC20** token standard from OpenZeppelin. Set your token to `_mint()` **1000** (\* 10 \*\* 18) tokens to the `msg.sender`.
+### You will
 
-> Then create a `Vendor.sol` contract that sells your token using a payable `buyTokens()` function.
+- 🏵 Create a `YourToken.sol` token contract that inherits the **ERC20** token standard from OpenZeppelin. Set your token to `_mint()` **1000** (\* 10 \*\* 18) tokens to the `msg.sender`.
 
-> 🎛 Edit the frontend that invites the user to `<input\>` an amount of tokens they want to buy. We'll display a preview of the amount of ETH (or USD) it will cost with a confirm button.
+- 🤖 Create a `Vendor.sol` contract that sells and buys your tokens
+
+- 🎛 Extension: Edit the frontend that invites the user to `<input\>` an amount of tokens they want to buy. We'll display a preview of the amount of ETH it will cost.
 
 🧫 Everything starts by ✏️ Editing `YourToken.sol` in `packages/hardhat/contracts`
 
@@ -26,7 +28,7 @@ Before you begin, you need to install the following tools:
 
 ```
 git clone git@github.com:Scalene-Academy/token-vendor-c1.git
-cd scaffold-eth-2
+cd token-vendor-c1
 yarn install
 ```
 
@@ -40,70 +42,60 @@ yarn start   (nextjs frontend)
 yarn deploy  (to compile, deploy, and publish your contracts to the hardhat network, which will reflect on your frontend)
 ```
 
-> 👀 Visit your frontend at http://localhost:3000
+> 👀 Visit your frontend at http://localhost:3000. To start, we'll be using the `Debug Contracts` tab
 
 > 👩‍💻 Rerun `yarn deploy --reset` whenever you want to redeploy your contracts
 
-> Ignore any warnings, we'll get to that...
+> Ignore any errors or warnings for now, we'll get to that...
 
 ---
 
 ### Checkpoint 2: 🏵Your Token 💵
 
-> 👩‍💻 Edit `YourToken.sol` to inherit the **ERC20** token standard from OpenZeppelin
+- 👩‍💻 Edit `YourToken.sol` to inherit the **ERC20** token standard from OpenZeppelin
 
-> Mint **1000** (\* 10 \*\* 18) to your frontend address using the `constructor()`.
+- Mint **1000** (\* 10 \*\* 18) to your frontend address using the `constructor()`.
 
-(Your frontend address is the address in the top right of http://localhost:3000)
+  - (Your frontend address is the address in the top right of http://localhost:3000)
 
-> Remember, you can `yarn deploy --reset` to deploy your contract until you get it right.
+> Remember, you can `yarn deploy --reset` to deploy your contract until you get things right.
 
 #### 🥅 Goals
 
-- [ ] Can you check the `balanceOf()` your frontend address in the **YourToken** of the `Debug Contracts` tab?
+- [ ] Can you check the `balanceOf()` your frontend address?
 - [ ] Can you `transfer()` your token to another account and check _that_ account's `balanceOf`?
-
-(Use an incognito window to create a new address and try sending to that new address. Use the `transfer()` function in the `Debug Contracts` tab.)
 
 ---
 
 ### Checkpoint 3: ⚖️ Vendor 🤖
 
-> 👩‍💻 Edit the `Vendor.sol` contract with a **payable** `buyTokens()` function
+- 👩‍💻 Edit the `Vendor.sol` contract with a **payable** `buyTokens()` function
+- Use a price variable named `tokensPerEth` set to **100**:
 
-Use a price variable named `tokensPerEth` set to **100**:
+  ```solidity
+  uint256 public constant tokensPerEth = 100;
+  ```
 
-```solidity
-uint256 public constant tokensPerEth = 100;
-```
+- 📝 The `buyTokens()` function in `Vendor.sol` should use `msg.value` and `tokensPerEth` to calculate an amount of tokens to `yourToken.transfer()` to `msg.sender`.
+- 📟 Define and `emit` an **event** `BuyTokens(address buyer, uint256 amountOfETH, uint256 amountOfTokens)` when tokens are purchased.
+- Edit `deploy/01_deploy_vendor.js` to deploy the `Vendor` (uncomment Vendor deploy lines).
+- When you try to buy tokens from the vendor, you should get an error: **'ERC20: transfer amount exceeds balance'**
 
-> 📝 The `buyTokens()` function in `Vendor.sol` should use `msg.value` and `tokensPerEth` to calculate an amount of tokens to `yourToken.transfer()` to `msg.sender`.
+- ⚠️ This is because the Vendor contract doesn't have any `YourToken`s yet!
 
-> 📟 Emit an **event** `BuyTokens(address buyer, uint256 amountOfETH, uint256 amountOfTokens)` when tokens are purchased.
+- ⚔️ Side Quest: send tokens from your frontend address to the Vendor contract address and _then_ try to buy them.
 
-Edit `deploy/01_deploy_vendor.js` to deploy the `Vendor` (uncomment Vendor deploy lines).
+- ✏️ We can't hard code the vendor address like we did above when deploying to the network because we won't know the vendor address at the time we create the token contract.
 
-#### 🥅 Goals
+- ✏️ So instead, edit `YourToken.sol` to mint the tokens to the `msg.sender` (deployer) in the `constructor(address deployer)`.
 
-- [ ] When you try to buy tokens from the vendor, you should get an error: **'ERC20: transfer amount exceeds balance'**
+- ✏️ Then, edit `deploy/01_deploy_vendor.js` to transfer 1000 tokens to `vendor.address`.
 
-⚠️ This is because the Vendor contract doesn't have any YourTokens yet!
+  ```js
+  await yourToken.transfer(vendor.address, ethers.utils.parseEther("1000"));
+  ```
 
-⚔️ Side Quest: send tokens from your frontend address to the Vendor contract address and _then_ try to buy them.
-
-> ✏️ We can't hard code the vendor address like we did above when deploying to the network because we won't know the vendor address at the time we create the token contract.
-
-> ✏️ So instead, edit `YourToken.sol` to mint the tokens to the `msg.sender` (deployer) in the **constructor()**.
-
-> ✏️ Then, edit `deploy/01_deploy_vendor.js` to transfer 1000 tokens to `vendor.address`.
-
-```js
-await yourToken.transfer(vendor.address, ethers.utils.parseEther("1000"));
-```
-
-> You can `yarn deploy --reset` to deploy your contract until you get it right.
-
-(You will use the `YourToken` UI tab and the frontend for most of your testing. Most of the UI is already built for you for this assignment.)
+> Remember, you can `yarn deploy --reset` to deploy your contract until you get it right.
 
 #### 🥅 Goals
 
@@ -111,32 +103,26 @@ await yourToken.transfer(vendor.address, ethers.utils.parseEther("1000"));
 - [ ] Can you buy **10** tokens for **0.1** ETH?
 - [ ] Can you transfer tokens to a different account?
 
-> 📝 Edit `Vendor.sol` to inherit _Ownable_.
+### Checkpoint 4: Become the Owner 🕴
 
-In `deploy/01_deploy_vendor.js` you will need to call `transferOwnership()` on the `Vendor` to make _your frontend address_ the `owner`:
+- 📝 Edit `Vendor.sol` to inherit _Ownable_.
 
-```js
-await vendor.transferOwnership("**YOUR FRONTEND ADDRESS**");
-```
+- In `deploy/01_deploy_vendor.js` you will need to call `transferOwnership()` on the `Vendor` to make _your frontend address_ the `owner`:
+
+  ```js
+  await vendor.transferOwnership("**YOUR FRONTEND ADDRESS**");
+  ```
+
+- 📝 Finally, add a `withdraw()` function in `Vendor.sol` that only allows the owner to withdraw ETH from the vendor.
 
 #### 🥅 Goals
 
 - [ ] Is your frontend address the `owner` of the `Vendor`?
-
-> 📝 Finally, add a `withdraw()` function in `Vendor.sol` that lets the owner withdraw ETH from the vendor.
-
-#### 🥅 Goals
-
 - [ ] Can **only** the `owner` withdraw the ETH from the `Vendor`?
-
-#### ⚔️ Side Quests
-
-- [ ] Can _anyone_ withdraw? Test _everything_!
-- [ ] What if you minted **2000** and only sent **1000** to the `Vendor`?
 
 ---
 
-### Checkpoint 4: 🤔 Vendor Buyback 🤯
+### Checkpoint 5: 🤔 Vendor Buyback 🤯
 
 👩‍🏫 The hardest part of this assignment is to build your `Vendor` to buy the tokens back.
 
@@ -146,26 +132,40 @@ await vendor.transferOwnership("**YOUR FRONTEND ADDRESS**");
 
 🤨 Then, the user makes a _second transaction_ to the `Vendor` contract to `sellTokens(uint256 amount)`.
 
-🤓 The `Vendor` should call `yourToken.transferFrom(msg.sender, address(this), theAmount)` and if the user has approved the `Vendor` correctly, tokens should transfer to the `Vendor` and ETH should be sent to the user.
+🤓 The `Vendor` should call `yourToken.transferFrom(msg.sender, address(this), theAmount)` and if the user has approved the `Vendor` correctly, tokens should be sent to the `Vendor`, and ETH should be sent to the user.
 
-> 📝 Edit `Vendor.sol` and add a `sellTokens(uint256 amount)` function!
+- 📝 Edit `Vendor.sol` and add a `sellTokens(uint256 amount)` function!
 
-⚠️ You will need extra UI for calling `approve()` before calling `sellTokens(uint256 amount)`.
-
-🔨 Use the `Debug Contracts` tab to call the approve and sellTokens() at first but then...
-
-🔍 Look in the `App.jsx` for the extra approve/sell UI to uncomment!
+- 🔨 Use the `Debug Contracts` tab to call `approve` and `sellTokens`
 
 #### 🥅 Goal
 
 - [ ] Can you sell tokens back to the vendor?
 - [ ] Do you receive the right amount of ETH for the tokens?
 
-#### ⚔️ Side Quest
+### Checkpoint 6: ⚠️ Test it!!
 
-- [ ] Should we disable the `owner` withdraw to keep liquidity in the `Vendor`?
-- [ ] It would be a good idea to display Sell Token Events. Create the `event` and `emit` it in your `Vendor.sol` and look at `buyTokensEvents` in your `App.jsx` for an example of how to update your frontend.
+- Now is a good time to run `yarn hardhat:test` to run the automated testing function. It will test that you hit the core checkpoints. You are looking for all green checkmarks and passing tests!
+- As always, we should aim for our tests to cover 100% of our smart contract code. Run `yarn hardhat:test:coverage` to see if this is the case!
 
-#### ⚠️ Test it!
+### Extension: 🌈 The Real Frontend 🌈
 
-- Now is a good time to run `yarn test` to run the automated testing function. It will test that you hit the core checkpoints. You are looking for all green checkmarks and passing tests!
+> So far, we've used the `Debug Contracts` tab to interact with our contracts, but this isn't very user friendly. Check out the `Example UI` tab (file `packages/nextjs/pages/example-ui.tsx`) to see what the start of a real UI could look like!
+
+> `scaffold-eth-2` also provides us with some handy helpers in `nextjs/hooks`
+
+#### Contract Interactions (Left)
+
+The UI looks pretty good, but could be better, let's finish it off!
+
+Currently when buying tokens, the user must enter the amount of ETH they are using to purchase, and they receive 100x this amount of `YourToken`s in return.
+
+- Change this so that the user can enter the number of `YourToken`s they would like to buy
+- Update the subtitle below the input to reflect how much ETH this will cost them
+  - For example, if `100` is entered in the input then it should say `You pay: 1.0 ETH + Gas`
+
+#### Events
+
+- It would be a good idea to display `BuyTokens` Events. Display the event history on the right side of `Example UI` (see `ContractData.tsx`). Unleash your inner designer and showcase those events in a way users would like to see!
+- Get new `BuyTokens` events to be added here in realtime as you interact with the contract
+- Now, add a `SellTokens` event to `Vendor.sol` and do the same for those events!
