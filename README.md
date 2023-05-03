@@ -27,8 +27,8 @@ Before you begin, you need to install the following tools:
 ### Checkpoint 0: Clone and Install
 
 ```
-git clone git@github.com:Scalene-Academy/token-vendor-c1.git
-cd token-vendor-c1
+git clone git@github.com:Scalene-Academy/scalene-token-vendor-yourname.git
+cd scalene-token-vendor-yourname
 yarn install
 ```
 
