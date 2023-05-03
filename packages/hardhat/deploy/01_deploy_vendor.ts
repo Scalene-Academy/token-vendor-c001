@@ -47,9 +47,9 @@ const deployVendor: DeployFunction = async function (hre: HardhatRuntimeEnvironm
   // await transferTransaction.wait();
   // console.log("\n   ✅ confirmed!\n");
 
-  // // @TODO: change address to your frontend address vvvv
+  // // @TODO: change address to your frontend address
   // console.log("\n 🤹  Sending ownership to frontend address...\n");
-  // const ownershipTransaction = await vendor.transferOwnership("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+  // const ownershipTransaction = await vendor.transferOwnership(yourFrontendAddress);
   // console.log("\n    confirming...\n");
   // await ownershipTransaction.wait();
   // console.log("\n   ✅ confirmed!\n");
